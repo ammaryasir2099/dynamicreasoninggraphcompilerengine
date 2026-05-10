@@ -1,0 +1,142 @@
+# ================================
+# LAYER 0: PROBLEM INGESTION + STRUCTURED MEMORY BUILDER
+# ================================
+
+import re
+
+
+# ---------------------------
+# READ RAW PROBLEM FILE
+# ---------------------------
+def read_problem_file(path="problem.txt"):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception as e:
+        print("[LAYER 0 ERROR] Could not read file:", e)
+        return ""
+
+
+# ---------------------------
+# CLEAN TEXT (REMOVE NOISE)
+# ---------------------------
+def clean_text(text):
+
+    text = text.replace("\r", " ")
+    text = re.sub(r"\s+", " ", text)
+
+    return text.strip()
+
+
+# ---------------------------
+# SEGMENT PROBLEM STRUCTURE
+# ---------------------------
+def segment_problem(text):
+
+    sections = {
+        "state": [],
+        "rules": [],
+        "actions": [],
+        "objective": [],
+        "constraints": [],
+        "general": []
+    }
+
+    lines = text.split("\n")
+
+    mode = "general"
+
+    for line in lines:
+        l = line.strip().lower()
+
+        if "initial state" in l:
+            mode = "state"
+            continue
+
+        if "system rules" in l or "rules and dependencies" in l:
+            mode = "rules"
+            continue
+
+        if "available actions" in l:
+            mode = "actions"
+            continue
+
+        if "objective" in l:
+            mode = "objective"
+            continue
+
+        if "critical constraint" in l:
+            mode = "constraints"
+            continue
+
+        if line.strip():
+            sections[mode].append(line.strip())
+
+    return sections
+
+
+# ---------------------------
+# EXTRACT ENTITIES (LIGHTWEIGHT, NO REASONING)
+# ---------------------------
+def extract_entities(text):
+
+    # simple entity extraction (NO NLP heavy dependency)
+    patterns = {
+        "numbers": r"\d+[%]?",
+        "variables": r"[A-Za-z ]+:\s*\d+",
+    }
+
+    entities = {
+        "numbers": re.findall(patterns["numbers"], text),
+        "variables": re.findall(patterns["variables"], text)
+    }
+
+    return entities
+
+
+# ---------------------------
+# BUILD STRUCTURED STATE OBJECT
+# ---------------------------
+def build_state(text):
+
+    state = {
+        "raw_text": text,
+        "clean_text": clean_text(text),
+        "sections": segment_problem(text),
+        "entities": extract_entities(text)
+    }
+
+    return state
+
+
+# ---------------------------
+# MAIN LAYER FUNCTION
+# ---------------------------
+def layer0_process(file_path="problem.txt"):
+
+    print("\n--- LAYER 0: PROBLEM INGESTION ---")
+
+    raw = read_problem_file(file_path)
+
+    state = build_state(raw)
+
+    print("State Sections:")
+    for k, v in state["sections"].items():
+        print(f"  {k}: {len(v)} items")
+
+    print("\nEntities Found:")
+    for k, v in state["entities"].items():
+        print(f"  {k}: {len(v)}")
+
+    return state
+
+
+# ---------------------------
+# TEST
+# ---------------------------
+if __name__ == "__main__":
+
+    state = layer0_process()
+
+    print("\n--- CLEAN TEXT PREVIEW ---")
+    print(state["clean_text"][:300])
