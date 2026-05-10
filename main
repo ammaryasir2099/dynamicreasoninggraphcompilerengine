@@ -1,0 +1,73 @@
+# ================================
+# MAIN PIPELINE (FULL v1 GRAPH SYSTEM)
+# ================================
+
+from layer0 import layer0_process
+from layer05_planner import build_execution_plan
+from layer3_reasoning_selector import select_reasoning_layers
+from layer4_reasoning_graph import build_reasoning_graph
+
+
+def run_system(problem_file="problem.txt"):
+
+    print("\n========================================")
+    print("   MODULAR REASONING SYSTEM STARTING")
+    print("========================================")
+
+    # ---------------------------
+    # LAYER 0: PROBLEM INGESTION
+    # ---------------------------
+    state = layer0_process(problem_file)
+
+    # ---------------------------
+    # LAYER 0.5: EXECUTION PLANNER
+    # ---------------------------
+    state = build_execution_plan(state)
+
+    # ---------------------------
+    # LAYER 3: REASONING LAYER SELECTOR
+    # ---------------------------
+    state = select_reasoning_layers(state)
+
+    # ---------------------------
+    # LAYER 4: REASONING GRAPH BUILDER
+    # ---------------------------
+    state = build_reasoning_graph(state)
+
+    # ---------------------------
+    # FINAL SYSTEM SUMMARY
+    # ---------------------------
+    print("\n========================================")
+    print("           SYSTEM SUMMARY")
+    print("========================================")
+
+    # Execution plan
+    plan = state.get("execution_plan", {})
+    print("\n[Execution Plan]")
+    print("Problem Type:", plan.get("problem_type"))
+    print("Execution Mode:", plan.get("execution_mode"))
+
+    # Reasoning layers
+    layers = state.get("reasoning_layers", [])
+    print("\n[Reasoning Layers]")
+    for l in layers:
+        print(" -", l["layer_id"], ":", l["purpose"])
+
+    # Graph summary
+    graph = state.get("reasoning_graph", {})
+    print("\n[Reasoning Graph]")
+    print("Nodes:", len(graph.get("nodes", {})))
+    print("Edges:", len(graph.get("edges", [])))
+
+    print("\n========================================")
+    print("      SYSTEM READY FOR EXECUTION ENGINE")
+    print("========================================")
+
+    return state
+
+
+# ---------------------------
+# RUN SYSTEM
+# ---------------------------
+if __name__ == "__main__":
+    run_system("problem.txt")
