@@ -1,0 +1,132 @@
+# ================================
+# LAYER 0.5: PROBLEM COMPREHENSION + EXECUTION PLANNER
+# ================================
+
+
+# ---------------------------
+# DETECT PROBLEM TYPE
+# ---------------------------
+def detect_problem_type(text):
+
+    text = text.lower()
+
+    # dynamic system / simulation problems
+    if (
+        "crisis" in text
+        or "system rules" in text
+        or "available actions" in text
+        or "objective" in text
+    ):
+        return "dynamic_system_crisis"
+
+    # math problems
+    if (
+        "calculate" in text
+        or "solve" in text
+        or "how many" in text
+        or "equation" in text
+    ):
+        return "quantitative_reasoning"
+
+    return "general_reasoning"
+
+
+# ---------------------------
+# BUILD EXECUTION PLAN
+# ---------------------------
+def build_execution_plan(state):
+
+    print("\n--- LAYER 0.5: PROBLEM COMPREHENSION + PLANNING ---")
+
+    text = state.get("clean_text", "").lower()
+
+    problem_type = detect_problem_type(text)
+
+    plan = {
+        "problem_type": problem_type,
+        "signals": [],
+        "required_capabilities": [],
+        "execution_mode": "sequential",
+        "activate_layers": []
+    }
+
+    # ---------------------------
+    # DYNAMIC SYSTEM CRISIS
+    # ---------------------------
+    if problem_type == "dynamic_system_crisis":
+
+        plan["signals"] = [
+            "multi_variable_system",
+            "delayed_effects",
+            "constraints",
+            "action_selection"
+        ]
+
+        plan["required_capabilities"] = [
+            "state_tracking",
+            "rule_application",
+            "simulation",
+            "constraint_checking",
+            "goal_evaluation"
+        ]
+
+        plan["execution_mode"] = "iterative_simulation"
+
+        # layer order suggestion
+        plan["activate_layers"] = [0, 0.5, 1, 5]
+
+    # ---------------------------
+    # QUANTITATIVE REASONING
+    # ---------------------------
+    elif problem_type == "quantitative_reasoning":
+
+        plan["signals"] = ["math"]
+
+        plan["required_capabilities"] = [
+            "calculation",
+            "symbolic_reasoning"
+        ]
+
+        plan["execution_mode"] = "linear"
+        plan["activate_layers"] = [0, 0.5, 1]
+
+    # ---------------------------
+    # GENERAL
+    # ---------------------------
+    else:
+
+        plan["signals"] = ["general"]
+
+        plan["required_capabilities"] = [
+            "parsing",
+            "reasoning"
+        ]
+
+        plan["execution_mode"] = "fallback"
+        plan["activate_layers"] = [0, 0.5, 1]
+
+    # save
+    state["execution_plan"] = plan
+
+    # print summary
+    print("Problem Type:", plan["problem_type"])
+    print("Signals:", plan["signals"])
+    print("Capabilities:", plan["required_capabilities"])
+    print("Execution Mode:", plan["execution_mode"])
+    print("Active Layers:", plan["activate_layers"])
+
+    return state
+
+
+# ---------------------------
+# TEST
+# ---------------------------
+if __name__ == "__main__":
+
+    from layer0 import layer0_process
+
+    state = layer0_process()
+    state = build_execution_plan(state)
+
+    print("\nExecution Plan:")
+    print(state["execution_plan"])
