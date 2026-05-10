@@ -1,0 +1,93 @@
+# ================================
+# LAYER 3: REASONING LAYER SELECTOR (v1)
+# ================================
+
+
+def select_reasoning_layers(state):
+
+    print("\n--- LAYER 3: REASONING LAYER SELECTION ---")
+
+    plan = state.get("execution_plan", {})
+    problem_type = plan.get("problem_type", "general_reasoning")
+
+    reasoning_layers = []
+
+    # ---------------------------
+    # DYNAMIC SYSTEM CRISIS
+    # ---------------------------
+    if problem_type == "dynamic_system_crisis":
+
+        reasoning_layers = [
+            {
+                "layer_id": "R1_state_tracker",
+                "purpose": "Maintain evolving system state",
+                "inputs": ["state", "actions"],
+                "outputs": ["updated_state"]
+            },
+            {
+                "layer_id": "R2_rule_engine",
+                "purpose": "Apply system rules to state",
+                "inputs": ["state", "rules"],
+                "outputs": ["rule_results"]
+            },
+            {
+                "layer_id": "R3_simulation_engine",
+                "purpose": "Simulate next state transitions",
+                "inputs": ["state", "actions", "rules"],
+                "outputs": ["future_states"]
+            },
+            {
+                "layer_id": "R4_objective_evaluator",
+                "purpose": "Score states based on objective",
+                "inputs": ["future_states", "objective"],
+                "outputs": ["state_scores"]
+            },
+            {
+                "layer_id": "R5_decision_selector",
+                "purpose": "Select best action sequence",
+                "inputs": ["state_scores"],
+                "outputs": ["best_action"]
+            }
+        ]
+
+    # ---------------------------
+    # QUANTITATIVE REASONING
+    # ---------------------------
+    elif problem_type == "quantitative_reasoning":
+
+        reasoning_layers = [
+            {
+                "layer_id": "R1_math_parser",
+                "purpose": "Parse mathematical expressions",
+                "inputs": ["text"],
+                "outputs": ["expression_tree"]
+            },
+            {
+                "layer_id": "R2_solver",
+                "purpose": "Compute numerical result",
+                "inputs": ["expression_tree"],
+                "outputs": ["solution"]
+            }
+        ]
+
+    # ---------------------------
+    # GENERAL REASONING
+    # ---------------------------
+    else:
+
+        reasoning_layers = [
+            {
+                "layer_id": "R1_text_reasoner",
+                "purpose": "General logical reasoning",
+                "inputs": ["state"],
+                "outputs": ["inferences"]
+            }
+        ]
+
+    state["reasoning_layers"] = reasoning_layers
+
+    print("Selected Reasoning Layers:")
+    for layer in reasoning_layers:
+        print(" -", layer["layer_id"], ":", layer["purpose"])
+
+    return state
