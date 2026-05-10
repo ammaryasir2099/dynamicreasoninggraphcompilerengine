@@ -1,0 +1,41 @@
+# ================================
+# LAYER 4: REASONING GRAPH BUILDER (v1)
+# ================================
+
+
+def build_reasoning_graph(state):
+
+    print("\n--- LAYER 4: REASONING GRAPH BUILDING ---")
+
+    layers = state.get("reasoning_layers", [])
+
+    graph = {
+        "nodes": {},
+        "edges": []
+    }
+
+    # ---------------------------
+    # CREATE NODES
+    # ---------------------------
+    for layer in layers:
+        graph["nodes"][layer["layer_id"]] = {
+            "purpose": layer["purpose"],
+            "inputs": layer["inputs"],
+            "outputs": layer["outputs"]
+        }
+
+    # ---------------------------
+    # CREATE EDGES (simple sequential v1)
+    # ---------------------------
+    for i in range(len(layers) - 1):
+        graph["edges"].append({
+            "from": layers[i]["layer_id"],
+            "to": layers[i + 1]["layer_id"]
+        })
+
+    state["reasoning_graph"] = graph
+
+    print("Graph Nodes:", len(graph["nodes"]))
+    print("Graph Edges:", len(graph["edges"]))
+
+    return state
